@@ -13,7 +13,6 @@ def _make_norm(out_ch, norm_type='bn'):
 
 
 class ConvBlock(nn.Module):
-    """Encoder block with downsampling and sequential Conv+BN+Act layers."""
     def __init__(self, in_ch, out_ch, use_bn=True, act="relu", norm="bn"):
         super().__init__()
         layers = [
@@ -23,7 +22,6 @@ class ConvBlock(nn.Module):
             nn.LeakyReLU(0.2, inplace=True) if act=="lrelu" else nn.ReLU(inplace=True)
         ]
 
-        # Add at least three more Conv+BN+Act layers as requested
         for _ in range(3):
             layers += [
                 nn.Conv2d(out_ch, out_ch, 3, 1, 1, bias=not use_bn),
@@ -37,7 +35,6 @@ class ConvBlock(nn.Module):
 
 
 class ResizeConvBlock(nn.Module):
-    """Upsample (nearest/bilinear) + sequential Conv+BN+ReLU layers."""
     def __init__(self, in_ch, out_ch, use_bn=True, scale=2, mode='nearest', norm="bn"):
         super().__init__()
         # build upsample with valid kwargs
@@ -60,10 +57,6 @@ class ResizeConvBlock(nn.Module):
 
 
 class Generator(nn.Module):
-    """
-    UNet-style generator with resize-convolutions in the decoder.
-    Input size should be a multiple of 32. Outputs are in [-1, 1] (tanh).
-    """
     def __init__(self, in_nc=3, out_nc=3, up_mode='nearest', use_bn=True, norm='bn'):
         super().__init__()
 
