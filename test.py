@@ -8,7 +8,6 @@ from metalDataSet import MetalPlateDataset
 from unet import SkipGANomaly
 
 
-# Assuming you have batched_images with shape [B, C, H, W]
 def show_sample(batched_images, reconstructed, sample_idx=0, e=1):
     sample = batched_images[sample_idx]  # Shape: [C, H, W]
     sample = sample.cpu().numpy()
@@ -54,14 +53,13 @@ def show_sample(batched_images, reconstructed, sample_idx=0, e=1):
 
 
 def collate_and_augment_(samples):
-    # samples: list of (img,)  -> make it list of img
     imgs = [sample[0] for sample in samples]
     labels = [sample[1] for sample in samples]
     means = [sample[2] for sample in samples]
 
     batch = torch.stack(imgs, dim=0)  # [B,C,H,W]
 
-    # per-sample random aug (simple example)
+    # No Augmentation needed for test
     out = []
     for x in batch:
         out.append(x)
