@@ -173,7 +173,6 @@ if __name__ == "__main__":
         epoch_end_time = time.time()
         epoch_duration = epoch_end_time - epoch_start_time
 
-        freq = 1
         avg_d_loss = running_d_loss / len(dataloader)
         avg_g_loss = running_g_loss / len(dataloader)
         avg_l_adv = running_l_adv / len(dataloader)
@@ -186,8 +185,10 @@ if __name__ == "__main__":
 
 
     print("Training finished.")
-    model = best_model
 
+    ## Walk over the original train data (with no augmentation)
+    ## Compute the anomaly threshold for each alpha
+    model = best_model
     sampler = RandomSampler(train_ds, num_samples=len(train_ds))
     dataloader = DataLoader(train_ds, batch_size=4, collate_fn=collate_and_augment_)
 
@@ -200,7 +201,6 @@ if __name__ == "__main__":
             for i, (batch_images, ids, means) in enumerate(dataloader):
                 batch_images = batch_images.to('cuda').float()
                 anomaly_score, x_hat = model.anomaly_score(batch_images, alpha=float(alpha/10))
-
                 for i in range(4):
                     try:
                         scores.append(anomaly_score[i].item())
@@ -208,9 +208,11 @@ if __name__ == "__main__":
                     except:
                         continue
 
+        ## Getting threshold based on distribution of errors (anomaly scores)
         threshold = np.percentile(scores, 95)
         thresholds[alpha] = threshold
 
+    ## save the model
     checkpoint = {
         "G_state_dict": model.G.state_dict(),
         "D_state_dict": model.D.state_dict(),
@@ -221,41 +223,3 @@ if __name__ == "__main__":
     }
 
     torch.save(checkpoint, "skipganomaly_phase1_a.pth")
-
-
-    # print("Training finished.")
-    # model = best_model
-
-    # sampler = RandomSampler(train_ds, num_samples=len(train_ds))
-    # dataloader = DataLoader(train_ds, batch_size=4, sampler=sampler, collate_fn=collate_and_augment)
-
-    # model.eval()
-    # thresholds = {}
-    # for alpha in range(1, 10):
-    #     print(alpha)
-    #     scores = []
-    #     with torch.no_grad():
-    #         for i, (batch_images, ids, means) in enumerate(dataloader):
-    #             batch_images = batch_images.to('cuda').float()
-    #             anomaly_score, x_hat = model.anomaly_score(batch_images, alpha=float(alpha/10))
-
-    #             for i in range(4):
-    #                 try:
-    #                     scores.append(anomaly_score[i].item())
-
-    #                 except:
-    #                     continue
-
-    #     threshold = np.percentile(scores, 95)
-    #     thresholds[alpha] = threshold
-
-    # checkpoint = {
-    #     "G_state_dict": model.G.state_dict(),
-    #     "D_state_dict": model.D.state_dict(),
-    #     'd_optimizer': d_optimizer.state_dict(),
-    #     'g_optimizer': g_optimizer.state_dict(),
-    #     'thresholds': thresholds,
-    #     'means': means[0],
-    # }
-
-    # torch.save(checkpoint, "skipganomaly_phase1_b.pth")
