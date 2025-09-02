@@ -179,15 +179,13 @@ class SkipGANomaly(nn.Module):
 
     @torch.no_grad()
     def anomaly_score(self, x, alpha=0.5):
-        """
-        A(x) = alpha * ||x - G(x)||_1 + (1-alpha) * ||f_D(x) - f_D(G(x))||_2
-        """
         x_hat = self.G(x)
         _, f_real = self.D(x)
         _, f_fake = self.D(x_hat)
 
         recon = F.l1_loss(x_hat, x, reduction='none').mean(dim=(1,2,3))
         latent = F.mse_loss(f_real, f_fake, reduction='none').mean(dim=1)
+        ##    A(x) = alpha * ||x - G(x)||_1 + (1-alpha) * ||f_D(x) - f_D(G(x))||_2
         return alpha * recon + (1 - alpha) * latent, x_hat
 
     def d_loss(self, x):
