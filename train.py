@@ -55,7 +55,6 @@ def collate_and_augment_(samples):
     return torch.stack(out, dim=0), labels, means
 
 
-
 import matplotlib.pyplot as plt
 
 # Assuming you have batched_images with shape [B, C, H, W]
@@ -166,6 +165,7 @@ if __name__ == "__main__":
             running_l_con += logs['L_con'].item()
             running_l_lat += logs['L_lat'].item()
 
+            # keep the best model
             if g_loss.item() < best_g_loss:
                 best_g_loss = g_loss.item()
                 best_model = copy.deepcopy(model)
