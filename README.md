@@ -71,4 +71,4 @@ python test.py
 ```
 Running the test.py script loads the *skipganomaly_phase1_a.pth* (obtained from train.py, with all the model weights, alpha thresholds, and train data mean). As we know the threshold for each alpha, we can check the anomaly_score(reconstruction + latent space error) with the given threshold. Higher value than the threshold means that sample is abnormal.
 
-In case you want to just run the test script, the checkpoint is provided in [this address](https://drive.google.com/file/d/1Uq7LCx4RLZaxZXT-mDHPQFDmzw7duOem/view?usp=sharing).
+In case you want to just run the test script, the checkpoint is provided in [this address](https://drive.google.com/file/d/1Uq7LCx4RLZaxZXT-mDHPQFDmzw7duOem/view?usp=sharing). Download it and place it in the project root folder, next to test.py.
