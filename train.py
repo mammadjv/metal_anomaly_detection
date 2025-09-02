@@ -21,7 +21,7 @@ def collate_and_augment(samples):
 
     batch = torch.stack(imgs, dim=0)  # [B,C,H,W]
 
-    # per-sample random aug (simple example)
+    # per-sample random aug
     out = []
     for x in batch:
         random_number = random.random()
