@@ -5,7 +5,14 @@ This report presents a comprehensive approach to metal plate anomaly detection u
 
 ## Traditional Computer Vision Exploration
 
-The project began with a fundamental computer vision approach. I analyzed the histograms of the normal vs abnormal images, and figured out that their histograms are so different, except when the anomaly was from scratches, for which histogram distribution was similar to those of normal plate. Was thinking of doing a Gaussian Mixture Model or even feeding the histogram data into a ML model to do the classification, but realized the pattern, especially for scratches, needs a bit beyond histogram-based classification, and the discriminative scratch features should be detected based on edge patterns. Here are some normal vs abnormal histograms, the difference of which is obvious.
+The project began with a fundamental computer vision approach. I analyzed the histograms of the normal vs abnormal images, and figured out that their histograms are so different, except when the anomaly was from scratches, for which histogram distribution was similar to those of normal plate. Was thinking of doing a Gaussian Mixture Model or even feeding the histogram data into a ML model to do the classification, but realized the pattern, especially for scratches, needs a bit beyond histogram-based classification, and the discriminative scratch features should be detected based on edge patterns. Here are some normal vs abnormal histograms:
+
+| Rusted | Normal | Scratched |
+|---------|---------|---------|
+| ![Image 2](./rust.png) | ![Image 1](./normal.png) | ![Image 3](./scratch.png) |
+
+
+We can see how the histogram for the normal vs scratched sample is three separate distributions for R, G, and B, but for rusted these three overlap. This pattern was visible in most of the samples.
 
 ## Deep Learning Implementation
 
@@ -13,12 +20,12 @@ The project began with a fundamental computer vision approach. I analyzed the hi
 The project transitioned to a deep learning approach using the Skip-GANomaly architecture, which combines:
 
 - **U-Net Encoder-Decoder**: Skip-connected architecture for multi-scale feature preservation
-- **Adversarial Training**: GAN framework with discriminator providing reconstruction feedback
+- **Adversarial Training**: GAN framework with a discriminator providing reconstruction feedback
 - **Multi-objective Loss Function**: Combining adversarial, contextual, and latent space losses
 
 ### Training Configuration
 - **Training Data**: 53 normal metal plate samples (unsupervised learning on normal samples only)
-- **Architecture**: U-Net based encoder-decoder with discriminator network
+- **Architecture**: U-Net-based encoder-decoder with a discriminator network
 - **Loss Components**:
   - Adversarial loss for realistic reconstruction
   - Contextual loss (L1) for pixel-level accuracy
@@ -28,7 +35,7 @@ The project transitioned to a deep learning approach using the Skip-GANomaly arc
 ### Results
 - **Test Dataset Size**: 97 test samples (26 good, 23 with rust, 16 major rust, 34 scratches)
 - **Hyperparameter Tuning**: During the inference, there is a tunable hyperparameter called alpha for computing the anomaly threshold. We varied alpha from 0.1 to 0.9, which controls the contribution of reconstruction and latent space errors. For each alpha, we first computed a threshold, which acts as the decision boundary for the anomaly. Any sample having an error beyond that threshold is abnormal. That threshold was computed using 95% percentile on error distributions of the training data. What is the error range in the training data? Anything above that from unseen test data is abnormal.
-- **Performance**: Tuning the hyperparameter we got the following result:
+- **Performance**: Tuning the hyperparameter, we got the following result:
 
 | Alpha | Precision | Recall |
 |-------|---------|---------|
@@ -42,7 +49,7 @@ The project transitioned to a deep learning approach using the Skip-GANomaly arc
 | 0.8   | 1.0 | 1.0 |
 | 0.9   | 1.0 | 1.0 |
 
-- **Note**: These 97 test samples can be good for choosing the appropriate alpha during actual test.
+- **Note**: These 97 test samples can be good for choosing the appropriate alpha during the actual test.
 
 
 ### Implementation
